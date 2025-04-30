@@ -1,7 +1,7 @@
 // GitHub API configuration
 const GITHUB_API_URL = 'https://api.github.com';
-const REPO_OWNER = 'dubu'; // Replace with your GitHub username
-const REPO_NAME = 'minecraft'; // Replace with your repository name
+const REPO_OWNER = 'dubu';
+const REPO_NAME = 'minecraft';
 const DISCUSSION_CATEGORY = 'comments'; // Category for comments
 
 // Get token from environment variable
