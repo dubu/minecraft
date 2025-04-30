@@ -17,15 +17,16 @@ jobs:
           node-version: '18'
           
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         
       - name: Build
         run: |
-          echo "GITHUB_DISCUSSIONS_TOKEN=${{ secrets.GITHUB_DISCUSSIONS_TOKEN }}" > .env
+          echo "DISCUSSIONS_TOKEN=${{ secrets.DISCUSSIONS_TOKEN }}" > .env
           npm run build
           
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist 
+          publish_dir: ./dist
+          commit_message: "Deploy comments system" 
