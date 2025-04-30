@@ -4,6 +4,9 @@ const REPO_OWNER = 'dubu'; // Replace with your GitHub username
 const REPO_NAME = 'minecraft'; // Replace with your repository name
 const DISCUSSION_CATEGORY = 'comments'; // Category for comments
 
+// Get token from environment variable
+const GITHUB_TOKEN = process.env.DISCUSSIONS_TOKEN;
+
 // DOM elements
 const commentForm = document.getElementById('commentForm');
 const commentsList = document.getElementById('commentsList');
@@ -11,9 +14,14 @@ const commentsList = document.getElementById('commentsList');
 // Load comments when page loads
 document.addEventListener('DOMContentLoaded', loadComments);
 
-// Handle form submission
+// Handle comment submission
 commentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!GITHUB_TOKEN) {
+        alert('GitHub token is not configured. Please check repository settings.');
+        return;
+    }
     
     const username = document.getElementById('username').value;
     const comment = document.getElementById('comment').value;
@@ -24,16 +32,22 @@ commentForm.addEventListener('submit', async (e) => {
         loadComments();
     } catch (error) {
         console.error('Error posting comment:', error);
-        alert('Failed to post comment. Please try again.');
+        alert(error.message || 'Failed to post comment. Please try again.');
     }
 });
 
 // Load comments from GitHub Discussions
 async function loadComments() {
+    if (!GITHUB_TOKEN) {
+        commentsList.innerHTML = '<p>GitHub token is not configured. Please check repository settings.</p>';
+        return;
+    }
+
     try {
         const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/discussions`, {
             headers: {
-                'Accept': 'application/vnd.github.v3+json'
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': `token ${GITHUB_TOKEN}`
             }
         });
         
@@ -45,7 +59,7 @@ async function loadComments() {
         displayComments(discussions);
     } catch (error) {
         console.error('Error loading comments:', error);
-        commentsList.innerHTML = '<p>Failed to load comments. Please try again later.</p>';
+        commentsList.innerHTML = `<p>${error.message}</p>`;
     }
 }
 
@@ -60,7 +74,7 @@ async function postComment(username, content) {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json',
-                'Authorization': `token ${process.env.GITHUB_TOKEN}` // You'll need to set this up
+                'Authorization': `token ${GITHUB_TOKEN}`
             },
             body: JSON.stringify({
                 title,
@@ -70,8 +84,11 @@ async function postComment(username, content) {
         });
         
         if (!response.ok) {
-            throw new Error('Failed to post comment');
+            const errorData = await response.json();
+            throw new Error(`Failed to post comment: ${errorData.message || 'Unknown error'}`);
         }
+        
+        return await response.json();
     } catch (error) {
         console.error('Error posting comment:', error);
         throw error;
