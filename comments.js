@@ -3,25 +3,31 @@ const GITHUB_API_URL = 'https://api.github.com';
 const REPO_OWNER = 'dubu';
 const REPO_NAME = 'minecraft';
 const DISCUSSION_CATEGORY = 'comments'; // Category for comments
-
-// Get token from window object
-const GITHUB_TOKEN = window.GITHUB_TOKEN;
+const APP_ID = 'YOUR_APP_ID'; // GitHub App ID
+const CLIENT_ID = 'YOUR_CLIENT_ID'; // GitHub App Client ID
 
 // DOM elements
 const commentForm = document.getElementById('commentForm');
 const commentsList = document.getElementById('commentsList');
 
 // Load comments when page loads
-document.addEventListener('DOMContentLoaded', loadComments);
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('github_token');
+    if (!token) {
+        // Redirect to GitHub OAuth
+        const redirectUri = encodeURIComponent(window.location.href);
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=discussions:write`;
+        window.location.href = authUrl;
+        return;
+    }
+    
+    await loadComments();
+});
 
 // Handle comment submission
 commentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    if (!GITHUB_TOKEN) {
-        alert('GitHub Discussions 토큰이 설정되지 않았습니다. 환경 변수 DISCUSSIONS_TOKEN을 확인해주세요.');
-        return;
-    }
     
     const username = document.getElementById('username').value;
     const comment = document.getElementById('comment').value;
@@ -29,26 +35,21 @@ commentForm.addEventListener('submit', async (e) => {
     try {
         await postComment(username, comment);
         commentForm.reset();
-        loadComments();
+        await loadComments();
     } catch (error) {
         console.error('Error posting comment:', error);
-        alert(error.message || 'Failed to post comment. Please try again.');
+        alert(error.message || '댓글 작성에 실패했습니다. 다시 시도해주세요.');
     }
 });
 
 // Load comments from GitHub Discussions
 async function loadComments() {
-    if (!GITHUB_TOKEN) {
-        commentsList.innerHTML = '<p>GitHub Discussions 토큰이 설정되지 않았습니다. 환경 변수 DISCUSSIONS_TOKEN을 확인해주세요.</p>';
-        return;
-    }
-
     try {
-        console.log('Token length:', GITHUB_TOKEN.length);
+        const token = localStorage.getItem('github_token');
         const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/discussions`, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
-                'Authorization': `token ${GITHUB_TOKEN}`
+                'Authorization': `Bearer ${token}`
             }
         });
         
@@ -70,6 +71,7 @@ async function loadComments() {
 async function postComment(username, content) {
     const title = `Comment from ${username}`;
     const body = content;
+    const token = localStorage.getItem('github_token');
     
     try {
         const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/discussions`, {
@@ -77,7 +79,7 @@ async function postComment(username, content) {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json',
-                'Authorization': `token ${GITHUB_TOKEN}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 title,
@@ -88,7 +90,7 @@ async function postComment(username, content) {
         
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(`Failed to post comment: ${errorData.message || 'Unknown error'}`);
+            throw new Error(`댓글 작성에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
         }
         
         return await response.json();
@@ -103,7 +105,7 @@ function displayComments(discussions) {
     commentsList.innerHTML = '';
     
     if (discussions.length === 0) {
-        commentsList.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
+        commentsList.innerHTML = '<p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</p>';
         return;
     }
     
@@ -132,4 +134,19 @@ function displayComments(discussions) {
         commentElement.appendChild(content);
         commentsList.appendChild(commentElement);
     });
+}
+
+// Handle OAuth callback
+if (window.location.search.includes('code=')) {
+    const code = new URLSearchParams(window.location.search).get('code');
+    fetch(`/api/auth?code=${code}`)
+        .then(response => response.json())
+        .then(data => {
+            localStorage.setItem('github_token', data.token);
+            window.location.href = window.location.pathname;
+        })
+        .catch(error => {
+            console.error('Error getting token:', error);
+            alert('인증에 실패했습니다. 다시 시도해주세요.');
+        });
 } 
