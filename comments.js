@@ -1,3 +1,6 @@
+// Load environment variables
+require('dotenv').config();
+
 // GitHub API configuration
 const GITHUB_API_URL = 'https://api.github.com';
 const REPO_OWNER = 'dubu';

@@ -4,7 +4,7 @@
   "description": "A simple game with comments system using GitHub Discussions",
   "main": "game.js",
   "scripts": {
-    "build": "mkdir -p dist && cp comments.html comments.css comments.js dist/",
+    "build": "mkdir -p dist && cp comments.html comments.css comments.js dist/ && cp .env dist/ || true",
     "start": "http-server dist"
   },
   "dependencies": {

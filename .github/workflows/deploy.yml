@@ -20,13 +20,14 @@ jobs:
         run: npm install
         
       - name: Build
+        env:
+          DISCUSSIONS_TOKEN: ${{ secrets.DISCUSSIONS_TOKEN }}
         run: |
-          echo "DISCUSSIONS_TOKEN=${{ secrets.DISCUSSIONS_TOKEN }}" > .env
           npm run build
           
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.PERSONAL_TOKEN }}
+          personal_token: ${{ secrets.PERSONAL_TOKEN }}
           publish_dir: ./dist
           commit_message: "Deploy comments system" 
