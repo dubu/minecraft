@@ -26,6 +26,8 @@ jobs:
           # Create config.js file with token
           echo "window.GITHUB_TOKEN = '$DISCUSSIONS_TOKEN';" > config.js
           npm run build
+          # Copy config.js to dist directory
+          cp config.js dist/
           
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
