@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   issues:
     types: [opened, edited, deleted]
+  repository_dispatch:
+    types: [new_comment]
 
 jobs:
   update-comments:

@@ -1,35 +1,35 @@
-// GitHub API 설정
-const GITHUB_USERNAME = 'dubu'; // GitHub 사용자 이름으로 변경
-const GITHUB_REPO = 'minecraft'; // 저장소 이름으로 변경
+// GitHub Discussions 설정
+const DISCUSSIONS_CATEGORY = 'comments'; // Discussions 카테고리 이름
+const DISCUSSIONS_REPO = 'dubu/minecraft'; // 저장소 이름
 
 // 댓글 목록을 표시하는 함수
 async function loadComments() {
     try {
-        const response = await fetch('comments.json');
-        let comments = [];
+        const response = await fetch(`https://api.github.com/repos/${DISCUSSIONS_REPO}/discussions?category=${DISCUSSIONS_CATEGORY}`);
+        let discussions = [];
         if (response.ok) {
-            comments = await response.json();
+            discussions = await response.json();
         }
         
         const commentsContainer = document.getElementById('comments');
         commentsContainer.innerHTML = '';
         
-        if (comments.length === 0) {
+        if (discussions.length === 0) {
             commentsContainer.innerHTML = '<p class="text-center text-muted">아직 댓글이 없습니다.</p>';
             return;
         }
         
-        comments.forEach(comment => {
+        discussions.forEach(discussion => {
             const commentCard = document.createElement('div');
             commentCard.className = 'card comment-card';
             commentCard.innerHTML = `
                 <div class="card-body">
                     <div class="comment-header">
-                        <span class="comment-author">${comment.author}</span>
-                        <span class="comment-date">${new Date(comment.createdAt).toLocaleString()}</span>
+                        <span class="comment-author">${discussion.author.login}</span>
+                        <span class="comment-date">${new Date(discussion.createdAt).toLocaleString()}</span>
                     </div>
-                    <h5 class="comment-title">${comment.title}</h5>
-                    <p class="comment-content">${comment.body}</p>
+                    <h5 class="comment-title">${discussion.title}</h5>
+                    <p class="comment-content">${discussion.body}</p>
                 </div>
             `;
             commentsContainer.appendChild(commentCard);
@@ -44,21 +44,23 @@ async function loadComments() {
 // 댓글 작성 함수
 async function postComment(name, comment) {
     try {
-        const response = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/issues`, {
+        // GitHub Discussions API를 사용하여 댓글 작성
+        const response = await fetch(`https://api.github.com/repos/${DISCUSSIONS_REPO}/discussions`, {
             method: 'POST',
             headers: {
-                'Authorization': `token ${process.env.PERSONAL_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 title: `Comment from ${name}`,
-                body: comment
+                body: comment,
+                category: DISCUSSIONS_CATEGORY
             })
         });
         
         if (response.ok) {
             document.getElementById('commentForm').reset();
-            // GitHub Actions가 댓글을 처리하고 정적 파일을 업데이트할 때까지 잠시 대기
+            // 댓글 목록 새로고침
             setTimeout(loadComments, 2000);
             return true;
         }
