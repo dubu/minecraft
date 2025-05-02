@@ -1,0 +1,12 @@
+{
+  "name": "comments-board",
+  "version": "1.0.0",
+  "description": "Static comments board using GitHub Issues",
+  "main": "scripts/generate-comments.js",
+  "scripts": {
+    "generate": "node scripts/generate-comments.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.7"
+  }
+} 
