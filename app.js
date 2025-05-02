@@ -20,12 +20,13 @@ async function loadComments() {
         }
         
         discussions.forEach(discussion => {
+            console.log(discussion);
             const commentCard = document.createElement('div');
             commentCard.className = 'card comment-card';
             commentCard.innerHTML = `
                 <div class="card-body">
                     <div class="comment-header">
-                        <span class="comment-author">${discussion.author.login}</span>
+                        <span class="comment-author"></span>
                         <span class="comment-date">${new Date(discussion.createdAt).toLocaleString()}</span>
                     </div>
                     <h5 class="comment-title">${discussion.title}</h5>
