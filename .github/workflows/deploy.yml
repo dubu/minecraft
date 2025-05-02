@@ -23,11 +23,8 @@ jobs:
         env:
           DISCUSSIONS_TOKEN: ${{ secrets.DISCUSSIONS_TOKEN }}
         run: |
-          # Debug token injection
-          echo "Token length: ${#DISCUSSIONS_TOKEN}"
-          # Replace token placeholder in HTML files
-          sed -i "s|%%DISCUSSIONS_TOKEN%%|$DISCUSSIONS_TOKEN|g" index.html
-          sed -i "s|%%DISCUSSIONS_TOKEN%%|$DISCUSSIONS_TOKEN|g" comments.html
+          # Create config.js file with token
+          echo "window.GITHUB_TOKEN = '$DISCUSSIONS_TOKEN';" > config.js
           npm run build
           
       - name: Deploy
