@@ -6,10 +6,18 @@ const GITHUB_REPO = 'minecraft'; // 저장소 이름으로 변경
 async function loadComments() {
     try {
         const response = await fetch('comments.json');
-        const comments = await response.json();
+        let comments = [];
+        if (response.ok) {
+            comments = await response.json();
+        }
         
         const commentsContainer = document.getElementById('comments');
         commentsContainer.innerHTML = '';
+        
+        if (comments.length === 0) {
+            commentsContainer.innerHTML = '<p class="text-center text-muted">아직 댓글이 없습니다.</p>';
+            return;
+        }
         
         comments.forEach(comment => {
             const commentCard = document.createElement('div');
@@ -28,6 +36,8 @@ async function loadComments() {
         });
     } catch (error) {
         console.error('댓글을 불러오는 중 오류가 발생했습니다:', error);
+        const commentsContainer = document.getElementById('comments');
+        commentsContainer.innerHTML = '<p class="text-center text-muted">댓글을 불러오는 중 오류가 발생했습니다.</p>';
     }
 }
 

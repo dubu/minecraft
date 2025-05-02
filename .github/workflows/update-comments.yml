@@ -1,6 +1,7 @@
 name: Update Comments
 
 on:
+  workflow_dispatch:
   issues:
     types: [opened, edited, deleted]
 
@@ -22,6 +23,12 @@ jobs:
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         run: node scripts/generate-comments.js
+        
+      - name: Create comments.json if not exists
+        run: |
+          if [ ! -f comments.json ]; then
+            echo "[]" > comments.json
+          fi
         
       - name: Commit and push if changed
         run: |
