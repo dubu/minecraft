@@ -23,6 +23,9 @@ jobs:
         env:
           DISCUSSIONS_TOKEN: ${{ secrets.DISCUSSIONS_TOKEN }}
         run: |
+          # Debug token injection
+          echo "Token length: ${#DISCUSSIONS_TOKEN}"
+          # Replace token placeholder in HTML files
           sed -i "s|%%DISCUSSIONS_TOKEN%%|$DISCUSSIONS_TOKEN|g" index.html
           sed -i "s|%%DISCUSSIONS_TOKEN%%|$DISCUSSIONS_TOKEN|g" comments.html
           npm run build

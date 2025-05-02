@@ -44,6 +44,7 @@ async function loadComments() {
     }
 
     try {
+        console.log('Token length:', GITHUB_TOKEN.length);
         const response = await fetch(`${GITHUB_API_URL}/repos/${REPO_OWNER}/${REPO_NAME}/discussions`, {
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
@@ -52,7 +53,9 @@ async function loadComments() {
         });
         
         if (!response.ok) {
-            throw new Error('Failed to fetch comments');
+            const errorData = await response.json();
+            console.error('API Error:', errorData);
+            throw new Error(`댓글을 불러오는데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
         }
         
         const discussions = await response.json();
