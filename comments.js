@@ -1,14 +1,11 @@
-// Load environment variables
-require('dotenv').config();
-
 // GitHub API configuration
 const GITHUB_API_URL = 'https://api.github.com';
 const REPO_OWNER = 'dubu';
 const REPO_NAME = 'minecraft';
 const DISCUSSION_CATEGORY = 'comments'; // Category for comments
 
-// Get token from environment variable
-const GITHUB_TOKEN = process.env.DISCUSSIONS_TOKEN;
+// Get token from window object
+const GITHUB_TOKEN = window.GITHUB_TOKEN;
 
 // DOM elements
 const commentForm = document.getElementById('commentForm');
