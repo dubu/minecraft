@@ -19,7 +19,7 @@ commentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     if (!GITHUB_TOKEN) {
-        alert('GitHub token is not configured. Please check repository settings.');
+        alert('GitHub Discussions 토큰이 설정되지 않았습니다. 환경 변수 DISCUSSIONS_TOKEN을 확인해주세요.');
         return;
     }
     
@@ -39,7 +39,7 @@ commentForm.addEventListener('submit', async (e) => {
 // Load comments from GitHub Discussions
 async function loadComments() {
     if (!GITHUB_TOKEN) {
-        commentsList.innerHTML = '<p>GitHub token is not configured. Please check repository settings.</p>';
+        commentsList.innerHTML = '<p>GitHub Discussions 토큰이 설정되지 않았습니다. 환경 변수 DISCUSSIONS_TOKEN을 확인해주세요.</p>';
         return;
     }
 
