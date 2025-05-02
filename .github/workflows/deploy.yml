@@ -23,6 +23,7 @@ jobs:
         env:
           DISCUSSIONS_TOKEN: ${{ secrets.DISCUSSIONS_TOKEN }}
         run: |
+          sed -i "s|%%DISCUSSIONS_TOKEN%%|$DISCUSSIONS_TOKEN|g" index.html
           npm run build
           
       - name: Deploy

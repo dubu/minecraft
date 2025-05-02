@@ -93,8 +93,8 @@
     <div id="jumpButton"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Set GitHub token from environment variable
-        window.GITHUB_TOKEN = process.env.DISCUSSIONS_TOKEN;
+        // GitHub token will be injected during build
+        window.GITHUB_TOKEN = '%%DISCUSSIONS_TOKEN%%';
     </script>
     <script src="game.js"></script>
     <script src="comments.js"></script>
