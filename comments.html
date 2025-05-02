@@ -80,6 +80,34 @@
             position: absolute;
             left: 0;
         }
+        .comments-section {
+            margin-top: 40px;
+        }
+        .comments-section h2 {
+            color: #2ea44f;
+            margin-bottom: 20px;
+        }
+        .comment {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .comment-content {
+            line-height: 1.6;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -93,6 +121,12 @@
             <a href="https://github.com/dubu/minecraft/discussions/new?category=comments" class="button">댓글 작성하기</a>
             <a href="https://github.com/dubu/minecraft/discussions/categories/comments" class="button secondary">댓글 보기</a>
         </div>
+        
+        <div class="comments-section">
+            <h2>최근 댓글</h2>
+            <div id="commentsList" class="loading">댓글을 불러오는 중...</div>
+        </div>
+
         <div class="features">
             <h2>주요 기능</h2>
             <ul>
@@ -104,5 +138,50 @@
             </ul>
         </div>
     </div>
+
+    <script>
+        // RSS 피드 URL
+        const RSS_URL = 'https://github.com/dubu/minecraft/discussions/categories/comments.rss';
+        
+        // RSS 피드에서 댓글 가져오기
+        async function loadComments() {
+            try {
+                const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`);
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    displayComments(data.items);
+                } else {
+                    throw new Error('댓글을 불러오는데 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById('commentsList').innerHTML = `<p>${error.message}</p>`;
+            }
+        }
+
+        // 댓글 표시
+        function displayComments(comments) {
+            const commentsList = document.getElementById('commentsList');
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</p>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map(comment => `
+                <div class="comment">
+                    <div class="comment-header">
+                        <span class="comment-author">${comment.author}</span>
+                        <span class="comment-date">${new Date(comment.pubDate).toLocaleDateString()}</span>
+                    </div>
+                    <div class="comment-content">${comment.description}</div>
+                </div>
+            `).join('');
+        }
+
+        // 페이지 로드 시 댓글 불러오기
+        document.addEventListener('DOMContentLoaded', loadComments);
+    </script>
 </body>
 </html> 
